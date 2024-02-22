@@ -1,0 +1,142 @@
+{% extends 'cartbase.html' %}
+{% load static %}
+{% block content %}
+{% load custom_filters %}
+
+<style>
+  body {
+    background-color: #f4f6f7;
+    font-family: 'Roboto', sans-serif;
+  }
+
+  h1 {
+    padding: 20px;
+    background-color: #6b8f58; /* Earthy green shade */
+    color: white;
+    text-align: center;
+    font-weight: 300;
+    border-radius: 3px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .container {
+    max-width: 960px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 5px;
+    background: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    margin-top: 20px;
+  }
+
+  th, td {
+    padding: 20px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  th {
+    color: #6b8f58; /* Earthy green shade */
+    font-weight: 400;
+  }
+
+  tr:hover {background-color: #f5f5f5;}
+
+  button[name="submit-order"] {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #6b8f58; /* Earthy green shade */
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button[name="submit-order"]:hover {
+    background-color: #536f43; /* Adjusted color */
+  }
+
+  .cart-item-remove {
+    color: red;
+    cursor: pointer;
+  }
+
+  label, input {
+    display: block;
+    margin-top: 20px;
+  }
+
+  input {
+    padding: 10px;
+    width: 100%;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+  }
+
+</style>
+
+<h1>Your Cart</h1>
+
+<div class="container">
+  <form action="{% url 'submit_order' %}" method="post">
+    {% csrf_token %}
+    <table>
+      <thead>
+        <tr>
+          <th>Vape</th>
+          <th>Price[$/Box]</th>
+          <th>Quantity</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart_items %}
+          {% with quantity_float=item.quantity|to_float price_float=item.product.price|to_float %}
+          {% with subtotal=quantity_float|mul:price_float %}
+          <tr>
+            <td>{{ item.product.vape }}</td>
+            <td>${{ item.product.price }}</td>
+            <td>{{ item.quantity }} <span class="cart-item-remove"><span class="remove-item" data-itemid="{{ item.id }}">Remove</span></span></td>
+            <td>${{ subtotal|floatformat:2 }}</td>
+          </tr>
+          {% endwith %}
+          {% endwith %}
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" style="text-align: right;">Total:</td>
+          <td>${{ total_price }}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <label for="name">Name:</label>
+    <input type="text" name="name" required>
+    <label for="store_number">Store Number:</label>
+    <input type="text" name="store_number" required>
+    <button type="submit" name="submit-order" id="submit-order-btn">Submit Order</button>
+  </form>
+</div>
+
+<script>
+// Add event listener to submit order button
+var removeButtons = document.querySelectorAll('.remove-item');
+removeButtons.forEach(function(button) {
+  button.addEventListener('click', function() {
+    var itemId = this.dataset.itemid;
+    window.location.href = '/remove_cart_item/' + itemId;
+  });
+});
+</script>
+
+{% endblock %}

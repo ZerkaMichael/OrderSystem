@@ -1,0 +1,103 @@
+{% extends 'base_shop.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+  body {
+    background-color: #fafafa;
+    font-family: 'Roboto', sans-serif;
+  }
+
+  h1 {
+    padding: 20px;
+    background-color: #6b8f58;
+    color: white;
+    text-align: center;
+    font-weight: 300;
+    border-radius: 3px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .container {
+    max-width: 960px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 5px;
+    background: white;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    margin-top: 20px;
+  }
+
+  th, td {
+    padding: 20px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  th {
+    color: #6b8f58; /* Earthy green shade */
+    font-weight: 400;
+  }
+
+  tr:hover {background-color: #f5f5f5;}
+
+  button[name="update-cart"] {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background-color: #6b8f58; /* Earthy green shade */
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button[name="update-cart"]:hover {
+    background-color: #536f43; /* Adjusted color */
+  }
+
+</style>
+
+<h1>Currently In Stock</h1>
+
+<div class="container">
+  <form action="{% url 'update_cart' %}" method="post">
+    {% csrf_token %}
+    <table>
+      <thead>
+        <tr>
+          <th>Vape Type</th>
+          <th>Price[$/Box]</th>
+          <th>Sell Price[$/Box]</th>
+          <th>Quantity in Stock</th>
+          <th>Skew</th>
+          <th>Quantity to Buy</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for product in products %}
+          <tr>
+            <td>{{ product.vape }}</td>
+            <td>${{ product.price }}</td>
+            <td>${{ product.sale_price }}</td>
+            <td>{{ product.quantity }}</td>
+            <td>{{ product.skew }}</td>
+            <td>
+              <input type="number" name="{{ product.id }}" min="0" max="{{ product.quantity }}" value="0">
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <button type="submit" name="update-cart">Update Cart</button>
+  </form>
+</div>
+{% endblock %}
